@@ -32,6 +32,12 @@ async function run() {
     const requestFoodsCollection = client.db('foodsDB').collection('requestFoods')
 
 
+    // create add foods route
+  app.post('/addFoods',async(req,res)=>{
+    const food = req.body;
+    const result = await foodsCollection.insertOne(food)
+    res.send(result)
+  })
 
     // Get all foods item
     app.get('/foods',async(req,res)=>{
