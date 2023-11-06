@@ -29,14 +29,28 @@ async function run() {
 
 
     const foodsCollection = client.db('foodsDB').collection('foods')
+    const requestFoodsCollection = client.db('foodsDB').collection('requestFoods')
+
+
+
+    // Get all foods item
     app.get('/foods',async(req,res)=>{
       const result = await foodsCollection.find().toArray()
       res.send(result)
     })
+
+    // Get single foods item
     app.get('/foods/:id',async(req,res)=>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
       const result = await foodsCollection.findOne(query)
+      res.send(result)
+    })
+
+    // create request foods item
+    app.post ('/requestFoods',async(req,res)=>{
+      const request = req.body;
+      const result = await requestFoodsCollection.insertOne(request)
       res.send(result)
     })
 
