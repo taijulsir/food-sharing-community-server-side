@@ -44,6 +44,7 @@ async function run() {
       const result = await foodsCollection.find().toArray()
       res.send(result)
     })
+
     // Get all foods based on user
     app.get('/allFoods',async(req,res)=>{
      let query = {};
@@ -51,6 +52,13 @@ async function run() {
       query = {donatorEmail: req.query.email}
      }
       const result = await foodsCollection.find(query).toArray()
+      res.send(result)
+    })
+    // delete specified user data
+    app.delete('/allFoods/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId (id)}
+      const result = await requestFoodsCollection.deleteOne(query)
       res.send(result)
     })
 
