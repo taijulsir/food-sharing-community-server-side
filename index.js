@@ -44,6 +44,15 @@ async function run() {
       const result = await foodsCollection.find().toArray()
       res.send(result)
     })
+    // Get all foods based on user
+    app.get('/allFoods',async(req,res)=>{
+     let query = {};
+     if(req.query?.email){
+      query = {donatorEmail: req.query.email}
+     }
+      const result = await foodsCollection.find(query).toArray()
+      res.send(result)
+    })
 
     // Get single foods item
     app.get('/foods/:id',async(req,res)=>{
