@@ -54,13 +54,51 @@ async function run() {
       const result = await foodsCollection.find(query).toArray()
       res.send(result)
     })
+
     // delete specified user data
     app.delete('/allFoods/:id',async(req,res)=>{
       const id = req.params.id;
+      console.log(id)
       const query = {_id: new ObjectId (id)}
+      console.log(query)
       const result = await requestFoodsCollection.deleteOne(query)
+      console.log(result)
       res.send(result)
     })
+
+
+    // update specified user data
+
+    //  foodName, foodImage, donatorName, donatorImage, foodQuantity, pickupLocation, expireDate, additionalNotes, category, donatorDesignation,foodId,donatorEmail,status
+    app.put('/updateFoods/:id', async (req, res) => {
+      const update = req.body;
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedDoc = {
+
+        $set: {
+          foodName: update.foodName,
+          foodImage: update.foodImage,
+          donatorName: update.donatorName,
+          donatorImage: update.donatorImage,
+          foodQuantity: update.foodQuantity,
+          pickupLocation: update.rating,
+         expireDate: update.expireDate,
+          additionalNotes: update.additionalNotes,
+          category: update.category,
+          donatorDesignation: update.donatorDesignation,
+          foodId: update.foodId,
+          donatorEmail: update.donatorEmail,
+          status: update.brandImage,
+
+        }
+      }
+
+      const result = await foodsCollection.updateOne(query, updatedDoc, options)
+      res.send(result)
+    })
+
 
     // Get single foods item
     app.get('/foods/:id',async(req,res)=>{
