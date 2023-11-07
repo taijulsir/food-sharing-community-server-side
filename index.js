@@ -44,14 +44,17 @@ async function run() {
     app.get('/foods', async (req, res) => {
       const page = parseInt(req.query.page)
       const size = parseInt(req.query.size)
-      const result = await foodsCollection.find().skip(size*page).limit(size).toArray()
+      const result = await foodsCollection.find().skip(size * page).limit(size).toArray()
       res.send(result)
     })
-    // to count data
+
+    // to count foods
     app.get('/foodCount', async (req, res) => {
       const count = await foodsCollection.estimatedDocumentCount()
       res.send({ count })
     })
+
+    // to get single food details
     app.get('/foods/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -75,25 +78,16 @@ async function run() {
       console.log(id)
       const query = { _id: new ObjectId(id) }
       console.log(query)
-      const result = await requestFoodsCollection.deleteOne(query)
+      const result = await foodsCollection.deleteOne(query)
       console.log(result)
       res.send(result)
     })
 
-    // get banner images
-    app.get('/banner', async (req, res) => {
-      const result = await bannerCollection.find().toArray()
-      res.send(result)
-    })
-
-
-
-
     // update specified user data
-
-    //  foodName, foodImage, donatorName, donatorImage, foodQuantity, pickupLocation, expireDate, additionalNotes, category, donatorDesignation,foodId,donatorEmail,status
     app.put('/updateFoods/:id', async (req, res) => {
       const update = req.body;
+      console.log(update)
+ 
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const options = { upsert: true };
@@ -105,14 +99,14 @@ async function run() {
           donatorName: update.donatorName,
           donatorImage: update.donatorImage,
           foodQuantity: update.foodQuantity,
-          pickupLocation: update.rating,
+          pickupLocation: update.pickupLocation,
           expireDate: update.expireDate,
           additionalNotes: update.additionalNotes,
           category: update.category,
           donatorDesignation: update.donatorDesignation,
           foodId: update.foodId,
           donatorEmail: update.donatorEmail,
-          status: update.brandImage,
+          status: update.status,
 
         }
       }
@@ -136,6 +130,28 @@ async function run() {
       const result = await requestFoodsCollection.insertOne(request)
       res.send(result)
     })
+
+    // get user requested food item
+    app.get('/requestedFoods', async (req, res) => {
+      let query = {}
+      if (req.query?.email) {
+        query = { requsterEmail: req.query.email }
+      }
+      const result = await requestFoodsCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // get requested data by id
+    app.get('/requestedFoods/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId (id)}
+      const result = await requestFoodsCollection.findOne(query)
+      res.send(result)
+    })
+
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
