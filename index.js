@@ -30,41 +30,63 @@ async function run() {
 
     const foodsCollection = client.db('foodsDB').collection('foods')
     const requestFoodsCollection = client.db('foodsDB').collection('requestFoods')
+    const bannerCollection = client.db('foodsDB').collection('bannerImage')
 
 
     // create add foods route
-  app.post('/addFoods',async(req,res)=>{
-    const food = req.body;
-    const result = await foodsCollection.insertOne(food)
-    res.send(result)
-  })
+    app.post('/addFoods', async (req, res) => {
+      const food = req.body;
+      const result = await foodsCollection.insertOne(food)
+      res.send(result)
+    })
 
     // Get all foods item
-    app.get('/foods',async(req,res)=>{
-      const result = await foodsCollection.find().toArray()
+    app.get('/foods', async (req, res) => {
+      const page = parseInt(req.query.page)
+      const size = parseInt(req.query.size)
+      const result = await foodsCollection.find().skip(size*page).limit(size).toArray()
+      res.send(result)
+    })
+    // to count data
+    app.get('/foodCount', async (req, res) => {
+      const count = await foodsCollection.estimatedDocumentCount()
+      res.send({ count })
+    })
+    app.get('/foods/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await foodsCollection.findOne(query)
       res.send(result)
     })
 
     // Get all foods based on user
-    app.get('/allFoods',async(req,res)=>{
-     let query = {};
-     if(req.query?.email){
-      query = {donatorEmail: req.query.email}
-     }
+    app.get('/allFoods', async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { donatorEmail: req.query.email }
+      }
       const result = await foodsCollection.find(query).toArray()
       res.send(result)
     })
 
     // delete specified user data
-    app.delete('/allFoods/:id',async(req,res)=>{
+    app.delete('/allFoods/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id)
-      const query = {_id: new ObjectId (id)}
+      const query = { _id: new ObjectId(id) }
       console.log(query)
       const result = await requestFoodsCollection.deleteOne(query)
       console.log(result)
       res.send(result)
     })
+
+    // get banner images
+    app.get('/banner', async (req, res) => {
+      const result = await bannerCollection.find().toArray()
+      res.send(result)
+    })
+
+
 
 
     // update specified user data
@@ -84,7 +106,7 @@ async function run() {
           donatorImage: update.donatorImage,
           foodQuantity: update.foodQuantity,
           pickupLocation: update.rating,
-         expireDate: update.expireDate,
+          expireDate: update.expireDate,
           additionalNotes: update.additionalNotes,
           category: update.category,
           donatorDesignation: update.donatorDesignation,
@@ -101,15 +123,15 @@ async function run() {
 
 
     // Get single foods item
-    app.get('/foods/:id',async(req,res)=>{
+    app.get('/foods/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await foodsCollection.findOne(query)
       res.send(result)
     })
 
     // create request foods item
-    app.post ('/requestFoods',async(req,res)=>{
+    app.post('/requestFoods', async (req, res) => {
       const request = req.body;
       const result = await requestFoodsCollection.insertOne(request)
       res.send(result)
@@ -127,9 +149,9 @@ run().catch(console.dir);
 
 
 
-app.get('/',(req,res)=>{
-    res.send("Food donation community server side is running")
+app.get('/', (req, res) => {
+  res.send("Food donation community server side is running")
 })
-app.listen(port,(req,res)=>{
-    console.log(`Food donation community server is running on port: ${port}`)
+app.listen(port, (req, res) => {
+  console.log(`Food donation community server is running on port: ${port}`)
 })
