@@ -98,7 +98,8 @@ async function run() {
     app.get('/foods', async (req, res) => {
       const page = parseInt(req.query.page)
       const size = parseInt(req.query.size)
-      const result = await foodsCollection.find().skip(size * page).limit(size).toArray()
+      const query = { status: 'available' }; 
+      const result = await foodsCollection.find(query).skip(size * page).limit(size).toArray()
       res.send(result)
     })
 
@@ -187,6 +188,17 @@ async function run() {
         query = { requsterEmail: req.query.email }
       }
       const result = await requestFoodsCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // create delete method to cancel any food item
+    app.delete('cancelFoods/:id',async(req,res)=>{
+      const id = req.params.id;
+      console.log(id)
+      const query = {_id: new ObjectId (id)}
+      console.log(query)
+      const result = await requestFoodsCollection.deleteOne(query)
+      console.log(result)
       res.send(result)
     })
 
