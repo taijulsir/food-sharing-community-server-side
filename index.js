@@ -9,7 +9,9 @@ const port = process.env.PORT || 5000;
 
 app.use(cors({
   origin: [
-      'http://localhost:5173'
+      'http://localhost:5173',
+      'https://food-donation-community.web.app',
+      'https://food-donation-community.firebaseapp.com/'
   ],
   credentials: true
 }))
@@ -83,6 +85,7 @@ async function run() {
       console.log('user hitten', user)
       res.clearCookie('token', { maxAge: 0 }).send({ success: true })
   })
+
 
     // create add foods data
     app.post('/addFoods', async (req, res) => {
@@ -187,15 +190,24 @@ async function run() {
       res.send(result)
     })
 
-    // get requested food item by id
-    // app.get('/requestedFoods/:id',async(req,res)=>{
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId (id)}
-    //   const result = await requestFoodsCollection.findOne(query)
-    //   res.send(result)
-    // })
+// update the food status
+    app.patch('/updateStatus/:id',async(req,res)=>{
+      const status = req.body;
+      console.log(status)
+      const id = req.params.id;
+      console.log(id)
+      const query = {_id: new ObjectId(id)}
+      const updateStatus = {
+        $set: {
+          status:status.status
+        }
+      }
+      console.log(updateStatus)
+      const result = await foodsCollection.updateOne(query,updateStatus)
+      res.send(result)
+    })
 
-
+   
 
 // Get foods and request foods data by unique id
   app.get('/requestedFoods/:id',async(req,res)=>{
